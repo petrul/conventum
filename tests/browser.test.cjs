@@ -22,8 +22,8 @@ const {chromium} = require('playwright');
     await page.goto(`http://127.0.0.1:${port}/`);
     await page.waitForFunction(()=>window.dicReady===true,{},{timeout:60000});
     await page.waitForSelector('.word-row');
-    assert.equal(await page.title(), 'Dic · An atlas of Romanian words');
-    assert.equal(await page.locator('.brand').textContent(), 'dic.');
+    assert.equal(await page.title(), 'Conventum · An atlas of Romanian words');
+    assert.equal(await page.locator('.brand').textContent(), 'conventum.');
     const search = async value => {
       await page.locator('#search').fill(value);
       await page.waitForFunction(value => new URLSearchParams(location.hash.slice(1)).get('q') === value, value);

@@ -7,6 +7,8 @@ import sqlite3
 
 from .webdata import prepare
 
+PROJECT_NAME = 'conventum'
+
 
 def build(database: Path, output: Path, vectors: Path | None = None):
     if not database.is_file():
@@ -14,6 +16,9 @@ def build(database: Path, output: Path, vectors: Path | None = None):
     metadata = prepare(database, vectors)
     resources = Path(__file__).with_name('web')
     template = resources.joinpath('index.html').read_text()
+    template = template.replace('__PROJECT_NAME_TITLE__', PROJECT_NAME.capitalize())
+    template = template.replace('__PROJECT_NAME_UPPER__', PROJECT_NAME.upper())
+    template = template.replace('__PROJECT_NAME__', PROJECT_NAME)
     template = template.replace('__DIC_RANKING__', resources.joinpath('ranking.mjs').read_text().replace('export ', ''))
     template = template.replace('__DIC_SQLITE__', resources.joinpath('sqlite.mjs').read_text().replace('export ', ''))
     template = template.replace('__DIC_APP__', resources.joinpath('explorer.js').read_text())

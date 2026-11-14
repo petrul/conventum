@@ -11,7 +11,7 @@ import pytest
 from dic.database import import_dump
 from dic.dumps import download
 from dic.parser import extract_origins, parse_entry
-from dic.site import build
+from dic.site import PROJECT_NAME, build
 
 
 def ro(body):
@@ -91,8 +91,9 @@ def test_full_import_export_grouping_and_provenance(tmp_path):
         assert db.execute('PRAGMA foreign_key_check').fetchall() == []
     output = build(database, tmp_path / 'site')
     html = output.read_text()
-    assert '<title>Dic · An atlas of Romanian words</title>' in html
-    assert '<div class="brand">dic<span>.</span></div>' in html
+    assert f'<title>{PROJECT_NAME.capitalize()} · An atlas of Romanian words</title>' in html
+    assert f'<div class="brand">{PROJECT_NAME}<span>.</span></div>' in html
+    assert f'<span>{PROJECT_NAME.upper()} · Romanian etymology explorer</span>' in html
     payload = html.split('<script id="dic-data" type="application/json">')[1].split('</script>')[0]
     data = json.loads(payload)
     assert data['database'] == 'dic.sqlite'
