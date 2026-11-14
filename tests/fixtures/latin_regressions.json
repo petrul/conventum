@@ -1,0 +1,117 @@
+[
+  {
+    "word": "cuvânt",
+    "queries": [
+      "conventum",
+      "cuvînt",
+      "cuvânt"
+    ],
+    "etymology": "Din latină ''[[conventus]]'' („[[adunare]], [[întrunire]]”), ''[[conventum]]'' („[[înțelegere]]”).\n\nÎnrudit cu franceză ''[[couvent]]'' („[[mănăstire]]”).",
+    "origins": [
+      {
+        "ancestor": "conventus",
+        "direct": true
+      },
+      {
+        "ancestor": "conventum",
+        "direct": true
+      }
+    ]
+  },
+  {
+    "word": "frânghie",
+    "queries": [
+      "frînghie",
+      "frânghie"
+    ],
+    "etymology": "Din latină ''[[fimbria]]''.",
+    "origins": [
+      {
+        "ancestor": "fimbria",
+        "direct": true
+      }
+    ]
+  },
+  {
+    "word": "pământ",
+    "queries": [
+      "pămînt",
+      "pământ"
+    ],
+    "etymology": "Provine din latină ''[[paumentum]]'' < ''[[pavimentum]]''.\n__NOEDITSECTION__",
+    "origins": [
+      {
+        "ancestor": "paumentum",
+        "direct": true
+      },
+      {
+        "ancestor": "pavimentum",
+        "direct": false
+      }
+    ]
+  },
+  {
+    "word": "mormânt",
+    "queries": [
+      "mormînt",
+      "mormânt"
+    ],
+    "etymology": "Din latină ''[[monumentum|mŏnŭmentum]]'' sau ''[[monimentum|mŏnĭmentum]]''; ''[[r]]'', prin [[disimilare]], sau și prin [[încrucișare]] cu ''[[mor]]'', confer [[sardă|sard.]] ''[[morimentu]]'' (Atzori 237), provensală ''[[morimen]]''.",
+    "origins": [
+      {
+        "ancestor": "monumentum",
+        "direct": true
+      },
+      {
+        "ancestor": "monimentum",
+        "direct": true
+      }
+    ]
+  },
+  {
+    "word": "bătrân",
+    "queries": [
+      "bătrîn",
+      "bătrân"
+    ],
+    "etymology": "Din latină ''[[betranus]]'' (= ''[[veteranus]]'').",
+    "origins": [
+      {
+        "ancestor": "betranus",
+        "direct": true
+      },
+      {
+        "ancestor": "veteranus",
+        "direct": false
+      }
+    ]
+  },
+  {
+    "word": "câștiga",
+    "queries": [
+      "a cîștiga",
+      "cîștiga",
+      "câștiga"
+    ],
+    "etymology": "Din latină ''[[castigare]]''.",
+    "origins": [
+      {
+        "ancestor": "castigare",
+        "direct": true
+      }
+    ]
+  },
+  {
+    "word": "rost",
+    "queries": [
+      "rost"
+    ],
+    "etymology": "Din latină ''[[rostrum]]''.",
+    "origins": [
+      {
+        "ancestor": "rostrum",
+        "direct": true
+      }
+    ]
+  }
+]

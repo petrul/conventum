@@ -1,0 +1,10 @@
+{
+  "edition": "ro",
+  "dump_date": "20261101",
+  "filename": "rowiktionary-20261101-pages-articles.xml.bz2",
+  "url": "https://dumps.wikimedia.org/rowiktionary/20261101/rowiktionary-20261101-pages-articles.xml.bz2",
+  "sha1": "efa92d9d0414c222eddad18ac05d8f75743ee7f4",
+  "bytes": 26905817,
+  "license": "CC BY-SA 4.0",
+  "source": "https://ro.wiktionary.org/"
+}
