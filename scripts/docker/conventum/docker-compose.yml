@@ -1,18 +1,14 @@
-# Prod runner for Conventum (the only environment for now).
-# Deployed on srv2.local:
+# Prod runner for Conventum (the only environment for now). Deployed on
+# srv2.local; the image is published by `rake ci` on the build machine:
 #   ssh srv2.local
-#   cd ~/conventum && git pull
-#   docker compose -f scripts/docker/conventum/docker-compose.yml up -d --build
-# The image is built from the repository root Dockerfile and tagged
-# conventum:0.0.1-SNAPSHOT (the version in package.json).
+#   cd ~/work/conventum && git pull            # or copy this directory
+#   docker compose -f scripts/docker/conventum/docker-compose.yml up -d
+# Compose only pulls the published image and starts it - no build here.
 name: conventum
 
 services:
   conventum:
-    build:
-      context: ../../..
-      dockerfile: Dockerfile
-    image: conventum:0.0.1-SNAPSHOT
+    image: mini.local:5000/editii/conventum:0.0.1-SNAPSHOT
     container_name: conventum-prod
     env_file:
       - prod.env

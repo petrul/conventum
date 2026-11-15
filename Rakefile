@@ -16,6 +16,8 @@ PYTHON_SOURCES = FileList['src/dic/*.py']
 # Display/image version (package.json keeps the literal 0.0.1-SNAPSHOT form;
 # pyproject.toml uses the PEP 440 spelling 0.0.1+SNAPSHOT).
 IMAGE_TAG = JSON.parse(File.read('package.json')).fetch('version')
+REGISTRY = 'mini.local:5000'
+IMAGE = "#{REGISTRY}/editii/conventum:#{IMAGE_TAG}"
 
 def load_profile!(profile)
   store = ENV.fetch('PASSWORD_STORE_DIR', File.expand_path('~/.password-store'))
@@ -125,12 +127,13 @@ task :test, [:profile] => [:browser] do |_, args|
   end
 end
 
-desc 'Install dependencies, run every test, build distributions and the Docker image'
+desc 'Install dependencies, run every test, build distributions, build and publish the Docker image'
 task :ci, [:profile] => [:setup] do |_, args|
   load_profile!(args[:profile])
   Rake::Task[:test].invoke(args[:profile])
   sh 'uv','build','--out-dir','dist/packages'
-  sh 'docker','build','--tag',"conventum:#{IMAGE_TAG}",'.'
+  sh 'docker','build','--tag',IMAGE,'.'
+  sh 'docker','push',IMAGE
 end
 
 task default: :test

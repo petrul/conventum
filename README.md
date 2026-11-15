@@ -254,20 +254,22 @@ cover `conventum`, `frînghie`, `pămînt`, `mormînt`, `bătrîn`, `a cîștiga
 ## Docker deployment
 
 ```bash
-rake ci                                                  # builds conventum:0.0.1-SNAPSHOT
-# on srv2.local:
-ssh srv2.local 'cd ~/conventum && git pull'
-docker compose -f scripts/docker/conventum/docker-compose.yml up -d --build   # run on srv2.local
+rake ci                                                  # tests, then publishes mini.local:5000/editii/conventum:0.0.1-SNAPSHOT
+# on srv2.local (only pulls the published image and starts it):
+ssh srv2.local
+docker compose -f ~/work/conventum/scripts/docker/conventum/docker-compose.yml up -d
 ```
 
 The image is multi-stage (`Dockerfile`): it renders `dist/` from the committed
 `data/dic.sqlite` and serves it with `python3 -m http.server` — no XML dump,
-Ollama, or API is needed at runtime. There is a single environment, **prod**
-(`scripts/docker/conventum/prod.env` sets `HOST`/`PORT`); the app is published on
-`srv2.local:8040`. Caddy runs on **zmeu.local** and reads `scripts/caddy/Caddyfile`
-from this repo: push here, `git pull` on zmeu.local, reload caddy. The Caddyfile
-maps `scriptorium.ro/conventum` and `/conventum/*` to `srv2.local:8040`, stripping
-the prefix so the site's relative asset URLs (`dic.sqlite`, `vendor/`) resolve.
+Ollama, or API is needed at runtime. `rake ci` builds it and pushes it to
+`mini.local:5000/editii/conventum:<version>`; the compose runner on srv2.local
+only pulls that image (single **prod** env, `scripts/docker/conventum/prod.env`
+sets `HOST`/`PORT`) and publishes it on `srv2.local:8040`. Caddy runs on
+**zmeu.local** and reads `scripts/caddy/Caddyfile` from the `scripts` repo: push,
+`git pull` on zmeu.local, reload caddy. The Caddyfile maps
+`scriptorium.ro/conventum` and `/conventum/*` to `srv2.local:8040`, stripping the
+prefix so the site's relative asset URLs (`dic.sqlite`, `vendor/`) resolve.
 
 ## Profiles
 
