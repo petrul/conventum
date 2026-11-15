@@ -196,8 +196,22 @@ Invalid, nonfinite, zero or inconsistent-dimension vectors are rejected.
 
 We compare known word–etymon pairs, so exact cosine distances in SQLite are more
 appropriate than approximate nearest-neighbour lookup in FAISS. Distance is
-`1 − dot(normalized_word, normalized_etymon)`. The static database contains
+`1 − dot(normalized_word, normalized_etymon)`, clamped to [0, 2] (0 = identical
+vectors, 2 = opposite). The static database contains
 scores and their textual evidence, **not** the large vectors.
+
+Pipeline detail (mirrors the “How the distances are computed” section at the end of
+the published page): at `rake embed` time, BGE-M3 embeds each unique input once;
+vectors are L2-normalized float32 BLOBs in `data/vectors.sqlite`, keyed by model
+digest + SHA-256 of the exact input text, resumable per batch, with empty,
+non-finite, zero-norm or inconsistent-dimension vectors rejected. Scores are
+computed per known word–ancestor pair under the recipe
+`bare-words-and-first-attested-definition-v1`, rounded to 6 decimals, and
+published into `origin_scores` — the browser only reads them, it never computes
+embeddings. Two metrics exist: bare-word (word vs ancestor string) and attested
+definitions (first attested definition of the Romanian etymon vs an attested
+meaning of the source word, headwords stripped; an inline gloss quoted in the
+etymology takes precedence).
 
 Choose a scope and **Largest distance first** or **Smallest distance first**.
 For multiple eligible etymons, descending order uses the largest pair distance;
@@ -281,6 +295,8 @@ in the environment and are never logged or written to an env file. Tests use
 temporary databases. No secrets are required for the static app.
 
 ## Attribution
+
+The project's own code is released under the [Apache License 2.0](LICENSE).
 
 Dictionary text comes from [Romanian Wiktionary](https://ro.wiktionary.org/) via
 [Wikimedia XML dumps](https://dumps.wikimedia.org/rowiktionary/), under the source
