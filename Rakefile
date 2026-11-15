@@ -108,7 +108,7 @@ end
 desc 'Populate from the pinned source, then build the static site'
 task :refresh => [:populate, :build]
 
-desc 'Serve Dic on the local network at port 8040; HOST=... PORT=...'
+desc 'Serve Conventum on the local network at port 8040; HOST=... PORT=...'
 task :run, [:profile] do |_, args|
   load_profile!(args[:profile])
   Rake::Task[:build].invoke(args[:profile])

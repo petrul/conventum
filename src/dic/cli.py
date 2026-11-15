@@ -52,7 +52,7 @@ def main():
         if not (args.directory / 'index.html').is_file():
             parser.error('No generated page: run rake populate and rake build first')
         server = ThreadingHTTPServer((args.host, args.port), partial(SimpleHTTPRequestHandler, directory=str(args.directory)))
-        print(f'Dic: http://{args.host}:{server.server_port}', flush=True)
+        print(f'Conventum: http://{args.host}:{server.server_port}', flush=True)
         if args.host == '0.0.0.0':
             print(f'Listening on all IPv4 interfaces. Open http://<server-hostname-or-IP>:{args.port} from your browser.', flush=True)
         try:

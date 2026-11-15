@@ -1,6 +1,6 @@
-# dic
+# Conventum
 
-**dic** is a Romanian etymology browser. It groups inflected forms under their
+**Conventum** is a Romanian etymology browser. It groups inflected forms under their
 main word, shows the source etymology directly in each row, and lets you search
 and browse Latin, Slavic, Turkic, French, and other origins.
 
