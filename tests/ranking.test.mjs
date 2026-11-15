@@ -20,6 +20,11 @@ assert.equal(rankEntries([remote],{...state,query:'pavimentum',ancestors:true}).
 assert.equal(rankEntries([remote],{...state,query:'pamanturi'}).length,1,'grouped form search ignores accents');
 assert.equal(rankEntries([a,b],{...state,evidence:'strict'}).length,0,'prose is not inherited');
 assert.equal(rankEntries([a,b,missing],{...state,scoredOnly:true}).length,2);
+const zero=word('zero',[origin('Latin','zero',0)]);
+const both=word('both',[origin('Latin','both',0),origin('Latin','other',0.7)]);
+assert.equal(rankEntries([zero,both,b],state).length,3,'zero distance removal is off by default');
+assert.deepEqual(rankEntries([zero,both,b],{...state,removeZero:true}).map(row=>row.entry.word),['b'],'words with an identical-form etymon must be removed');
+assert.deepEqual(rankEntries([zero,missing],{...state,removeZero:true}).map(row=>row.entry.word),['missing'],'null distance is not zero');
 assert.equal(entryScore(a,{...state,metric:'definitions'}).distance,null,'definition coverage must not silently fall back to word distance');
 const definition=word('definition',[origin('Latin','meaning',0.9,{definition_distance:0.2})]);
 assert.equal(entryScore(definition,{...state,metric:'definitions'}).distance,0.2);

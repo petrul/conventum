@@ -94,9 +94,11 @@ def test_full_import_export_grouping_and_provenance(tmp_path):
     assert f'<title>{PROJECT_NAME.capitalize()} · An atlas of Romanian words</title>' in html
     assert f'<div class="brand">{PROJECT_NAME}<span>.</span></div>' in html
     assert f'<span>{PROJECT_NAME.upper()} · Romanian etymology explorer</span>' in html
+    assert 'id="remove-zero"' in html
     payload = html.split('<script id="dic-data" type="application/json">')[1].split('</script>')[0]
     data = json.loads(payload)
     assert data['database'] == 'dic.sqlite'
+    assert data['name'] == PROJECT_NAME
     assert '<script>alert(1)' not in payload
     with sqlite3.connect(tmp_path / 'site' / 'dic.sqlite') as published:
         assert published.execute('SELECT count(*) FROM entries WHERE is_lemma=1').fetchone()[0] == 3

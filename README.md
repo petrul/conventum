@@ -27,6 +27,69 @@ older `î` spellings, grouped forms, Latin etymons, and the optional verb prefix
 `a`: `a cîștiga` finds `câștiga`, and `conventum` finds `cuvânt`. Original
 headwords and embedding inputs retain the source spelling.
 
+## Architecture
+
+Two halves that meet exactly once, at build time:
+
+```text
+data/source.json → pinned XML dump → data/dic.sqlite → dist/ → browser
+  (manifest)       (dumps.py)     (parser + database)  (site.py)  (sql.js WASM + JS)
+                                           ▲                    ▲
+                                           └─ embeddings.py → data/vectors.sqlite
+                                              (scores published into dic.sqlite)
+```
+
+**Python package `dic` (`src/dic/`) — build-time only.** The `dic` CLI
+(`cli.py`: `download`, `import`, `build`, `embed`, `serve`) is wired into rake
+tasks by the `Rakefile`.
+
+- `dumps.py` downloads the pinned Wiktionary XML snapshot and verifies its
+  SHA-1; `download_pinned` never follows a moving `latest` URL.
+- `parser.py` extracts entries conservatively with mwparserfromhell: Romanian
+  sections, etymology blocks, origins from `inh`/`bor`/`der`/`etim` templates or
+  explicit `din …` prose, inflected forms from paradigm templates. No template
+  expansion or guessed stemming; raw wikitext is kept for audit.
+- `database.py` streams the XML (`iterparse`) into SQLite: `entries`,
+  `etymologies`, `origins`, `forms`, `form_links`, `metadata`, plus the
+  `latin_inheritance`/`latin_candidates` views. The import builds a `.building`
+  file and atomically replaces the old database only after an integrity check.
+- `embeddings.py` (optional; needs Ollama) embeds words, ancestors and attested
+  definitions with BGE-M3 into the local cache `data/vectors.sqlite`
+  (normalized float32 blobs keyed by model digest + text hash; resumable runs),
+  and stores exact cosine distances per word–ancestor pair in `pair_scores`.
+- `webdata.py` prepares the publishable database in place: `etymology_display`
+  (plain-text etymologies), `search_aliases` (accent- and î/â-folded keys for
+  words, forms, ancestors), and `origin_scores` (published distances joined by
+  origin id, matched to the dictionary by dump SHA-1 + run id).
+- `site.py` renders `web/index.html` into `dist/`: substitutes the
+  `__PROJECT_NAME*__` placeholders from the `PROJECT_NAME` constant, inlines
+  `sqlite.mjs` + `ranking.mjs` + `explorer.js` into one HTML file, injects a
+  small boot JSON (`metadata` + database filename, HTML-escaped) into
+  `<script id="dic-data">`, copies the dictionary as `dist/dic.sqlite`, and
+  copies the pinned sql.js WASM assets to `dist/vendor/`.
+
+**Web app (`src/dic/web/`) — runs entirely in the browser.**
+
+- `index.html` is the template: markup, CSS, the boot payload, and the inlined
+  scripts. `PROJECT_NAME` is the single constant behind the displayed name
+  (title, brand, footer).
+- `sqlite.mjs` loads the dictionary: `hydrateDictionary` reads `metadata`,
+  lemma `entries`, `forms`, etymologies with display text, and `origins` with
+  scores into JS objects; `autocomplete` is a prefix range query over
+  `search_aliases`.
+- `ranking.mjs` holds the pure ranking rules (origin tabs, evidence filters,
+  search folding including î/â variants and the `a ` verb prefix, scoring,
+  sorting), shared verbatim with the Node test suite.
+- `explorer.js` is the app: reads the boot JSON, initializes sql.js with the
+  WASM build, fetches `dic.sqlite`, hydrates, renders tabs/results/pagination,
+  and keeps shareable state in the URL hash.
+
+**How they interact:** only at build time. `site.build()` reads the prepared
+SQLite and produces a self-contained static `dist/`. At runtime there is no
+server API: the browser fetches `dic.sqlite`, opens it in memory with the
+WebAssembly SQLite engine, and every search, suggestion and ranking query runs
+locally. Python, Ollama and the XML dump are never needed by the published site.
+
 ## Static hosting, including GitHub Pages
 
 ```bash
@@ -172,7 +235,7 @@ that a generic embedder can reliably establish a semantic-change ranking.
 
 ```bash
 rake test                      # every Python, JavaScript and Playwright test
-rake ci                        # setup, all tests, Python wheel/source distribution
+rake ci                        # setup, all tests, Python distributions, Docker image
 ```
 
 `rake test` installs the locked Playwright Chromium revision if needed, runs
@@ -187,6 +250,24 @@ older spellings, model-cache resumption, malformed vectors, source provenance,
 pinned-download checksums and reproducible imports. Explicit word fixtures
 cover `conventum`, `frînghie`, `pămînt`, `mormînt`, `bătrîn`, `a cîștiga`, and
 `rost`, including `cuvânt → conventum` and `bătrân → veteranus`.
+
+## Docker deployment
+
+```bash
+rake ci                                                  # builds conventum:0.0.1-SNAPSHOT
+# on srv2.local:
+ssh srv2.local 'cd ~/conventum && git pull'
+docker compose -f scripts/docker/conventum/docker-compose.yml up -d --build   # run on srv2.local
+```
+
+The image is multi-stage (`Dockerfile`): it renders `dist/` from the committed
+`data/dic.sqlite` and serves it with `python3 -m http.server` — no XML dump,
+Ollama, or API is needed at runtime. There is a single environment, **prod**
+(`scripts/docker/conventum/prod.env` sets `HOST`/`PORT`); the app is published on
+`srv2.local:8040`. Caddy runs on **zmeu.local** and reads `scripts/caddy/Caddyfile`
+from this repo: push here, `git pull` on zmeu.local, reload caddy. The Caddyfile
+maps `scriptorium.ro/conventum` and `/conventum/*` to `srv2.local:8040`, stripping
+the prefix so the site's relative asset URLs (`dic.sqlite`, `vendor/`) resolve.
 
 ## Profiles
 

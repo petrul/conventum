@@ -13,6 +13,9 @@ DB = ENV.fetch('DB', 'data/dic.sqlite')
 OUTPUT = ENV.fetch('OUTPUT', 'dist')
 VECTORS = ENV.fetch('VECTORS', 'data/vectors.sqlite')
 PYTHON_SOURCES = FileList['src/dic/*.py']
+# Display/image version (package.json keeps the literal 0.0.1-SNAPSHOT form;
+# pyproject.toml uses the PEP 440 spelling 0.0.1+SNAPSHOT).
+IMAGE_TAG = JSON.parse(File.read('package.json')).fetch('version')
 
 def load_profile!(profile)
   store = ENV.fetch('PASSWORD_STORE_DIR', File.expand_path('~/.password-store'))
@@ -113,7 +116,7 @@ end
 desc 'Run every test: Python units, JavaScript units, and Playwright against a copied SQLite DB'
 task :test, [:profile] => [:browser] do |_, args|
   load_profile!(args[:profile])
-  sh 'uv','run','--frozen','pytest','-q'
+  sh 'uv','run','--frozen','python','-m','pytest','-q'
   Dir.mktmpdir('dic-test-') do |directory|
     test_db = File.join(directory,'dic.sqlite')
     FileUtils.cp(DB,test_db)
@@ -122,11 +125,12 @@ task :test, [:profile] => [:browser] do |_, args|
   end
 end
 
-desc 'Install dependencies, run every test, and build the Python distribution'
+desc 'Install dependencies, run every test, build distributions and the Docker image'
 task :ci, [:profile] => [:setup] do |_, args|
   load_profile!(args[:profile])
   Rake::Task[:test].invoke(args[:profile])
   sh 'uv','build','--out-dir','dist/packages'
+  sh 'docker','build','--tag',"conventum:#{IMAGE_TAG}",'.'
 end
 
 task default: :test

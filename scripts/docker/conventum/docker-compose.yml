@@ -1,0 +1,24 @@
+# Prod runner for Conventum (the only environment for now).
+# Deployed on srv2.local:
+#   ssh srv2.local
+#   cd ~/conventum && git pull
+#   docker compose -f scripts/docker/conventum/docker-compose.yml up -d --build
+# The image is built from the repository root Dockerfile and tagged
+# conventum:0.0.1-SNAPSHOT (the version in package.json).
+name: conventum
+
+services:
+  conventum:
+    build:
+      context: ../../..
+      dockerfile: Dockerfile
+    image: conventum:0.0.1-SNAPSHOT
+    container_name: conventum-prod
+    env_file:
+      - prod.env
+    ports:
+      # Published on all interfaces so Caddy on zmeu.local can reach
+      # srv2.local:8040 (see scripts/caddy/Caddyfile); the public entry point
+      # is https://scriptorium.ro/conventum/ via Caddy.
+      - "8040:8040"
+    restart: unless-stopped

@@ -24,6 +24,7 @@ export function entryScore(entry, state) {
 }
 
 export function rankEntries(entries, state) {
+  const key = state.metric === 'definitions' ? 'definition_distance' : 'word_distance';
   const fold = text => text.toLocaleLowerCase('ro').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
   // Index both î/â spellings without changing dictionary headwords, meanings,
   // or model inputs. Normalize decomposed Unicode before exchanging letters.
@@ -46,6 +47,10 @@ export function rankEntries(entries, state) {
     }
     const score = entryScore(entry, state);
     if (state.scoredOnly && score.distance === null) continue;
+    // Distance 0 means identical word–ancestor strings: same vector, i.e. the
+    // word has a same-form etymon and was imported unchanged (e.g. academic
+    // Latin imports), not inherited.
+    if (state.removeZero && origins.some(o => o[key] === 0)) continue;
     ranked.push({entry, ...score});
   }
   ranked.sort((a,b) => {

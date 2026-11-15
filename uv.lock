@@ -13,7 +13,7 @@ wheels = [
 
 [[package]]
 name = "dic"
-version = "0.1.0.dev0"
+version = "0.0.1+SNAPSHOT"
 source = { editable = "." }
 dependencies = [
     { name = "mwparserfromhell" },

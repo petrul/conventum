@@ -24,7 +24,7 @@ def build(database: Path, output: Path, vectors: Path | None = None):
     template = template.replace('__DIC_APP__', resources.joinpath('explorer.js').read_text())
     # Only small build metadata lives in HTML. The actual words, etymologies,
     # autocomplete results and scores are read from dic.sqlite at runtime.
-    payload = json.dumps({'metadata':metadata,'database':'dic.sqlite'}, ensure_ascii=False, separators=(',',':'))
+    payload = json.dumps({'name':PROJECT_NAME,'metadata':metadata,'database':'dic.sqlite'}, ensure_ascii=False, separators=(',',':'))
     payload = payload.replace('<','\\u003c').replace('>','\\u003e').replace('&','\\u0026')
     output.mkdir(parents=True, exist_ok=True)
     target = output / 'index.html'

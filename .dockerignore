@@ -1,0 +1,10 @@
+.git
+.venv
+node_modules
+dist
+data/dumps
+data/vectors.sqlite
+data/vectors.sqlite-shm
+data/vectors.sqlite-wal
+**/__pycache__
+.pytest_cache

@@ -1,6 +1,6 @@
 {
   "name": "dic",
-  "version": "0.1.0-dev.0",
+  "version": "0.0.1-SNAPSHOT",
   "private": true,
   "description": "Static Romanian etymology explorer with browser-side SQLite",
   "dependencies": {"sql.js": "1.16.0"},

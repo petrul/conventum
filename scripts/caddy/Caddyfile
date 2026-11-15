@@ -1,0 +1,24 @@
+# scriptorium.ro — served by Caddy on zmeu.local.
+#
+# Conventum itself runs in Docker on srv2.local:
+#   ssh srv2.local
+#   cd ~/conventum && git pull
+#   docker compose -f scripts/docker/conventum/docker-compose.yml up -d --build
+# The compose file publishes the app on srv2.local:8040 (all interfaces), so
+# from zmeu.local this block proxies to it. This repo is pulled on zmeu.local;
+# after editing this file: git push here, then `git pull` on zmeu.local and
+# reload caddy (e.g. `sudo systemctl reload caddy` or `caddy reload`).
+#
+# /conventum redirects to /conventum/; /conventum/* is reverse-proxied with the
+# prefix stripped so the site's relative asset URLs (dic.sqlite, vendor/)
+# resolve correctly.
+scriptorium.ro {
+	handle /conventum {
+		redir /conventum/ 308
+	}
+
+	handle /conventum/* {
+		uri strip_prefix /conventum
+		reverse_proxy srv2.local:8040
+	}
+}
