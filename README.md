@@ -245,6 +245,41 @@ Frozen BGE-M3 vectors test that `cuvânt/conventum` (~0.511) and
 `casă/casa` (~0.114). These are reproducible regression examples, not a claim
 that a generic embedder can reliably establish a semantic-change ranking.
 
+### The two metrics, compared
+
+Both metrics use the same BGE-M3 vectors and the same cosine distance
+(`1 − dot` of the normalized embeddings, clamped to [0, 2]); they differ only
+in **what text is embedded**:
+
+| | Bare-word embeddings | Attested definitions |
+|---|---|---|
+| Embeds | the word spelling vs the ancestor spelling | first attested definition of the Romanian etymon vs an attested meaning of the source word (headwords stripped; an inline gloss quoted in the etymology takes precedence) |
+| Distance 0 means | identical strings → same vector → unchanged import | (practically) identical definition texts |
+| Coverage | every word–ancestor pair | only pairs where **both** definitions are attested in the dump; otherwise NULL, never a fallback to word distance |
+| Blind spot | says nothing about language or meaning | meaning coverage gaps in the dump |
+
+Examples from the published scores (direct pairs):
+
+- `bec → bec` and `ciabatta → ciabatta`: word distance **0.000** (identical
+  spelling, unchanged form) but definition distance **~0.77** — the attested
+  meanings are far apart (RO `bec` = the glass bulb of a lamp, source `bec` =
+  „cioc”; RO `ciabatta` = Italian bread, source `ciabatta` = „papuc”). The
+  word metric alone would call these unchanged; the definition metric exposes
+  the semantic shift.
+- `burgmaistru → Bürgermeister`: word distance **0.543** (different
+  spellings) but definition distance **0.156** — both mean „primar” (mayor).
+  Same meaning, different form.
+- `cuvânt → conventum`: word **0.511**, definition **0.500** — RO „unitate de
+  bază a vocabularului…” vs Latin „înțelegere” (agreement): both metrics agree
+  the pair is distant.
+- `casă → casa`: word **0.114**, definition **unscored** — no attested
+  definition pair for Latin `casa` in this dump, so the definitions metric has
+  no value here.
+
+Rule of thumb: use **bare-word** to compare forms/spellings, **attested
+definitions** to compare meanings. “Remove zero distances” targets the
+word-metric 0.000 cases above.
+
 ## Tests and CI
 
 ```bash
